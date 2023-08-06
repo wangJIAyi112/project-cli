@@ -14,6 +14,7 @@ program.parse(process.argv);
 // 好比 vue init webpack project-name 的命令一样，第一个参数是 webpack，第二个参数是 project-name
 let templateName = "";
 let projectName = "";
+let cssName = "";
 
 const promptList = [
   {
@@ -45,7 +46,7 @@ const cssList = [
   {
     type: "list",
     message: "请选择一个css预处理语言:",
-    name: "templateName",
+    name: "cssName",
     choices: Object.keys(cssObj),
     validate(val) {
       if (val === "") {
@@ -68,10 +69,18 @@ if (program.args.length < 1) {
         projectName = answers.projectName;
         startProject();
       });
+    })
+    .then(() => {
+      inquirer.prompt(cssList).then(css => {
+        cssName = css.cssName;
+        startProject();
+      });
     });
 } else {
   templateName = program.args[0];
   projectName = program.args[1];
+  cssName = program.args[2];
+
   // 小小校验一下参数
   if (!tplObj[templateName]) {
     console.log(chalk.red("\n Template does not exit! \n "));
@@ -81,19 +90,27 @@ if (program.args.length < 1) {
     console.log(chalk.red("\n The projectName is required! \n "));
     return;
   }
+
+  if (!cssObj[cssName]) {
+    console.log(chalk.red("\n The css is required! \n "));
+    return;
+  }
+
   startProject();
 }
+
 
 // 开始下载脚手架的流程
 function startProject() {
   url = tplObj[templateName];
+  css = cssObj[cssName];
 
   console.log(chalk.white("\n Start generating... \n"));
   // 出现加载图标
   const spinner = ora("Downloading...");
   spinner.start();
   // 执行下载方法并传入参数
-  download(url, projectName, err => {
+  download(url, projectName, css, err => {
     if (err) {
       spinner.fail();
       console.log(chalk.red(`Generation failed. ${err}`));
