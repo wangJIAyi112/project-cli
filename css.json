@@ -1,0 +1,5 @@
+{
+  "less": "less",
+  "sass": "sass",
+  "postcss": "postcss"
+}
